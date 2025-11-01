@@ -1,0 +1,427 @@
+/**
+ * ANGULAR-STYLE COMPONENTS
+ * These classes simulate Angular components with lifecycle hooks
+ * In real Angular, these would be decorated with @Component()
+ */
+
+// Base Component class (simulates Angular's Component lifecycle)
+class Component {
+  constructor(selector) {
+    this.selector = selector;
+    this.element = null;
+  }
+
+  // Lifecycle hook - called when component is initialized
+  ngOnInit() {}
+
+  // Lifecycle hook - called when component is destroyed
+  ngOnDestroy() {}
+
+  // Render method - returns HTML string
+  render() {
+    return '';
+  }
+
+  // Mount component to DOM
+  mount(container) {
+    this.ngOnInit();
+    const html = this.render();
+    container.innerHTML = html;
+    this.element = container;
+    this.afterViewInit();
+  }
+
+  // Called after view is initialized
+  afterViewInit() {}
+}
+
+// Hero Component
+class HeroComponent extends Component {
+  constructor() {
+    super('app-hero');
+    this.data = null;
+  }
+
+  async ngOnInit() {
+    this.data = await portfolioService.getPersonalInfo();
+  }
+
+  render() {
+    if (!this.data) return '<div>Loading...</div>';
+    
+    return `
+      <div class="hero-component">
+        <div class="hero-content">
+          <h1 class="hero-title">${this.data.name}</h1>
+          <p class="hero-subtitle">${this.data.title}</p>
+          <p class="hero-location">📍 ${this.data.location}</p>
+          <div class="hero-actions">
+            <a href="#" data-route="projects" class="btn btn-primary">View My Work</a>
+            <a href="#" data-route="contact" class="btn btn-secondary">Get In Touch</a>
+          </div>
+          <div class="hero-socials">
+            <a href="#" target="_blank" class="btn btn-secondary">GitHub</a>
+            <a href="#" target="_blank" class="btn btn-secondary">LinkedIn</a>
+            <a href="mailto:${this.data.email}" class="btn btn-secondary">Email</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// About Component
+class AboutComponent extends Component {
+  constructor() {
+    super('app-about');
+    this.stats = [];
+    this.education = [];
+    this.experience = [];
+    this.personalInfo = null;
+  }
+
+  async ngOnInit() {
+    this.stats = await portfolioService.getStatistics();
+    this.education = await portfolioService.getEducation();
+    this.experience = await portfolioService.getExperience();
+    this.personalInfo = await portfolioService.getPersonalInfo();
+  }
+
+  render() {
+    return `
+      <div class="about-component">
+        <div class="container">
+          <h2 class="section-title">About Me</h2>
+          
+          <div class="stats-grid">
+            ${this.stats.map(stat => `
+              <div class="stat-card">
+                <div class="stat-value">${stat.value}</div>
+                <div class="stat-label">${stat.label}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="content-grid">
+            <div class="info-card">
+              <h3>Education</h3>
+              ${this.education.map(edu => `
+                <div class="timeline-item">
+                  <h4>${edu.degree}</h4>
+                  <p><strong>${edu.institution}</strong></p>
+                  <p>${edu.location} | ${edu.year}</p>
+                  ${edu.description ? `<p style="margin-top: 8px; font-size: 14px;">${edu.description}</p>` : ''}
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="info-card">
+              <h3>Experience</h3>
+              ${this.experience.map(exp => `
+                <div class="timeline-item">
+                  <h4>${exp.position}</h4>
+                  <p><strong>${exp.company}</strong></p>
+                  <p>${exp.location} | ${exp.period}</p>
+                  <p style="margin-top: 8px; font-size: 14px;">${exp.description}</p>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="info-card">
+              <h3>About</h3>
+              <p style="line-height: 1.6;">${this.personalInfo.bio}</p>
+              <div style="margin-top: 20px;">
+                <p><strong>Email:</strong> ${this.personalInfo.email}</p>
+                <p><strong>Phone:</strong> ${this.personalInfo.phone}</p>
+                <p><strong>Location:</strong> ${this.personalInfo.location}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Projects Component with filtering
+class ProjectsComponent extends Component {
+  constructor() {
+    super('app-projects');
+    this.projects = [];
+    this.currentFilter = 'all';
+  }
+
+  async ngOnInit() {
+    this.projects = await portfolioService.getProjects();
+  }
+
+  async filterProjects(filter) {
+    this.currentFilter = filter;
+    this.projects = await portfolioService.getProjects(filter);
+    this.mount(this.element);
+  }
+
+  render() {
+    const filters = ['all', 'frontend', 'backend', 'full-stack'];
+    
+    return `
+      <div class="projects-component">
+        <div class="container">
+          <h2 class="section-title">My Projects</h2>
+          
+          <div class="filter-buttons">
+            ${filters.map(filter => `
+              <button 
+                class="filter-btn ${this.currentFilter === filter ? 'active' : ''}"
+                data-filter="${filter}"
+              >
+                ${filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </button>
+            `).join('')}
+          </div>
+
+          <div class="projects-grid">
+            ${this.projects.map(project => `
+              <div class="project-card" data-project-id="${project.id}">
+                <div class="project-icon">${project.image}</div>
+                <h3>${project.name}</h3>
+                <p class="project-date">${project.date}</p>
+                <p class="project-description">${project.description}</p>
+                <div class="project-tech">
+                  ${project.technologies.map(tech => `
+                    <span class="tech-badge">${tech}</span>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  afterViewInit() {
+    // Add event listeners for filter buttons
+    const filterButtons = this.element.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const filter = e.target.dataset.filter;
+        this.filterProjects(filter);
+      });
+    });
+  }
+}
+
+// Skills Component
+class SkillsComponent extends Component {
+  constructor() {
+    super('app-skills');
+    this.skills = [];
+  }
+
+  async ngOnInit() {
+    this.skills = await portfolioService.getSkills();
+  }
+
+  render() {
+    return `
+      <div class="skills-component">
+        <div class="container">
+          <h2 class="section-title">Skills & Expertise</h2>
+          
+          <div class="skills-grid">
+            ${this.skills.map(skillGroup => `
+              <div class="skill-category">
+                <h3>${skillGroup.category}</h3>
+                <p class="skill-proficiency">Proficiency: ${skillGroup.proficiency}</p>
+                <div class="skill-items">
+                  ${skillGroup.items.map(skill => `
+                    <span class="skill-badge">${skill}</span>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Certifications Component
+class CertificationsComponent extends Component {
+  constructor() {
+    super('app-certifications');
+    this.certifications = [];
+    this.achievements = [];
+  }
+
+  async ngOnInit() {
+    this.certifications = await portfolioService.getCertifications();
+    this.achievements = await portfolioService.getAchievements();
+  }
+
+  render() {
+    return `
+      <div class="certifications-component">
+        <div class="container">
+          <h2 class="section-title">Certifications</h2>
+          
+          <div class="cert-timeline">
+            ${this.certifications.map(cert => `
+              <div class="cert-card">
+                <h3>${cert.title}</h3>
+                <p class="cert-issuer">${cert.issuer}</p>
+                <p class="cert-year">${cert.year}</p>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="achievements-section">
+            <h2 class="section-title">Achievements</h2>
+            <div class="achievements-grid">
+              ${this.achievements.map(achievement => `
+                <div class="achievement-card">
+                  <div class="achievement-icon">${achievement.icon}</div>
+                  <h4>${achievement.title}</h4>
+                  <p class="achievement-year">${achievement.year}</p>
+                  <p>${achievement.description}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Contact Component with form validation
+class ContactComponent extends Component {
+  constructor() {
+    super('app-contact');
+    this.personalInfo = null;
+  }
+
+  async ngOnInit() {
+    this.personalInfo = await portfolioService.getPersonalInfo();
+  }
+
+  render() {
+    if (!this.personalInfo) return '<div>Loading...</div>';
+
+    return `
+      <div class="contact-component">
+        <div class="container">
+          <h2 class="section-title">Get In Touch</h2>
+          
+          <div class="contact-grid">
+            <div class="contact-info">
+              <h3>Contact Information</h3>
+              
+              <div class="contact-item">
+                <div class="contact-icon">📧</div>
+                <div>
+                  <h4>Email</h4>
+                  <a href="mailto:${this.personalInfo.email}">${this.personalInfo.email}</a>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">📱</div>
+                <div>
+                  <h4>Phone</h4>
+                  <a href="tel:+91${this.personalInfo.phone}">${this.personalInfo.phone}</a>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">📍</div>
+                <div>
+                  <h4>Location</h4>
+                  <p>${this.personalInfo.location}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="contact-form-wrapper">
+              <h3>Send a Message</h3>
+              <form class="contact-form" id="contactForm">
+                <div class="form-group">
+                  <label for="name">Name *</label>
+                  <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="email">Email *</label>
+                  <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="subject">Subject</label>
+                  <input type="text" id="subject" name="subject" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                  <label for="message">Message *</label>
+                  <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full-width">Send Message</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  afterViewInit() {
+    const form = this.element.querySelector('#contactForm');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = {
+          name: form.name.value,
+          email: form.email.value,
+          subject: form.subject.value,
+          message: form.message.value
+        };
+
+        try {
+          // Show loading state
+          const submitBtn = form.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending...';
+
+          await portfolioService.submitContactForm(formData);
+          
+          // Success
+          toastService.success('Message sent successfully!');
+          form.reset();
+          
+          // Open email client
+          const mailtoLink = `mailto:${this.personalInfo.email}?subject=${encodeURIComponent(formData.subject || 'Portfolio Contact')}&body=${encodeURIComponent(formData.message)}`;
+          window.location.href = mailtoLink;
+        } catch (error) {
+          toastService.error(error.error || 'Failed to send message');
+        } finally {
+          const submitBtn = form.querySelector('button[type="submit"]');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      });
+    }
+  }
+}
+
+// Component Registry (simulates Angular's component declarations)
+const components = {
+  home: HeroComponent,
+  about: AboutComponent,
+  projects: ProjectsComponent,
+  skills: SkillsComponent,
+  certifications: CertificationsComponent,
+  contact: ContactComponent
+};

@@ -1,0 +1,207 @@
+/**
+ * MAIN APPLICATION MODULE
+ * Simulates Angular's AppModule and bootstrapping process
+ */
+
+class PortfolioApp {
+  constructor() {
+    this.currentComponent = null;
+    this.outlet = document.getElementById('router-outlet');
+  }
+
+  // Bootstrap application (simulates Angular's platformBrowserDynamic().bootstrapModule())
+  async bootstrap() {
+    try {
+      // Show loading screen
+      await this.simulateLoading();
+
+      // Initialize router
+      this.initializeRouter();
+
+      // Show app elements
+      this.showAppElements();
+
+      // Set up navigation
+      this.setupNavigation();
+
+      // Set up back to top button
+      this.setupBackToTop();
+
+      // Set up hamburger menu
+      this.setupHamburgerMenu();
+
+      // Load initial route
+      const hash = window.location.hash.slice(1) || 'home';
+      this.loadComponent(hash);
+
+      console.log('✅ Angular-style Portfolio Application bootstrapped successfully!');
+    } catch (error) {
+      console.error('❌ Application bootstrap failed:', error);
+    }
+  }
+
+  async simulateLoading() {
+    // Simulate initial data loading
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const loading = document.getElementById('loading');
+        if (loading) {
+          loading.style.opacity = '0';
+          setTimeout(() => loading.remove(), 300);
+        }
+        resolve();
+      }, 1000);
+    });
+  }
+
+  showAppElements() {
+    document.getElementById('app-header').style.display = 'block';
+    document.getElementById('router-outlet').style.display = 'block';
+    document.getElementById('app-footer').style.display = 'block';
+  }
+
+  initializeRouter() {
+    // Subscribe to route changes
+    routerService.onRouteChange((route) => {
+      this.loadComponent(route);
+      this.updateActiveNavLink(route);
+    });
+
+    // Handle browser back/forward buttons
+    window.addEventListener('hashchange', () => {
+      const route = window.location.hash.slice(1) || 'home';
+      routerService.navigate(route);
+    });
+  }
+
+  setupNavigation() {
+    // Set up navigation links
+    document.addEventListener('click', (e) => {
+      const routeLink = e.target.closest('[data-route]');
+      if (routeLink) {
+        e.preventDefault();
+        const route = routeLink.dataset.route;
+        routerService.navigate(route);
+      }
+    });
+  }
+
+  setupHamburgerMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+
+    if (hamburger && navMenu) {
+      hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+      });
+
+      // Close menu when clicking on a link
+      navMenu.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          navMenu.classList.remove('active');
+        });
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+          navMenu.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  setupBackToTop() {
+    const backToTopBtn = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        backToTopBtn.style.display = 'block';
+      } else {
+        backToTopBtn.style.display = 'none';
+      }
+    });
+
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  updateActiveNavLink(route) {
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      if (link.dataset.route === route) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  async loadComponent(route) {
+    // Destroy previous component
+    if (this.currentComponent && this.currentComponent.ngOnDestroy) {
+      this.currentComponent.ngOnDestroy();
+    }
+
+    // Get component class
+    const ComponentClass = components[route];
+    if (!ComponentClass) {
+      console.error(`Component for route '${route}' not found`);
+      return;
+    }
+
+    // Create and mount new component
+    try {
+      this.currentComponent = new ComponentClass();
+      await this.currentComponent.ngOnInit();
+      this.currentComponent.mount(this.outlet);
+      
+      // Add fade-in animation
+      this.outlet.style.animation = 'fadeIn 0.4s ease-out';
+      
+      console.log(`📦 Loaded ${ComponentClass.name} for route: ${route}`);
+    } catch (error) {
+      console.error(`Error loading component for route '${route}':`, error);
+      this.outlet.innerHTML = `
+        <div style="padding: 64px 24px; text-align: center;">
+          <h2>Oops! Something went wrong</h2>
+          <p>Unable to load the component. Please try again.</p>
+          <button class="btn btn-primary" onclick="location.reload()">Reload Page</button>
+        </div>
+      `;
+    }
+  }
+}
+
+// Initialize and bootstrap the application when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const app = new PortfolioApp();
+    app.bootstrap();
+  });
+} else {
+  const app = new PortfolioApp();
+  app.bootstrap();
+}
+
+// Log Angular-style architecture info
+console.log(`
+╔════════════════════════════════════════════════════════════╗
+║  🚀 ANGULAR-INSPIRED PORTFOLIO APPLICATION                ║
+║                                                            ║
+║  Architecture Highlights:                                  ║
+║  ✓ Component-based architecture                           ║
+║  ✓ Service layer with dependency injection pattern        ║
+║  ✓ Router service for navigation                          ║
+║  ✓ Lifecycle hooks (ngOnInit, ngOnDestroy)               ║
+║  ✓ Two-way data binding concepts                          ║
+║  ✓ Async operations with Promises                         ║
+║  ✓ Modular code organization                              ║
+║  ✓ Responsive Material Design                             ║
+║                                                            ║
+║  Built for: SOC Lab Internal Examination                   ║
+║  Student: Kotaparthi Sai Gopal                            ║
+╚════════════════════════════════════════════════════════════╝
+`);

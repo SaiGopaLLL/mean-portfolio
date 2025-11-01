@@ -1,0 +1,299 @@
+/**
+ * ANGULAR-STYLE SERVICES
+ * These services simulate Angular's service architecture with dependency injection
+ * In real Angular, these would be decorated with @Injectable()
+ */
+
+// Portfolio Service - Manages all portfolio data (simulates Angular Service)
+class PortfolioService {
+  constructor() {
+    // In-memory data store (simulates backend API responses)
+    this.data = {
+      personalInfo: {
+        name: "Kotaparthi Sai Gopal",
+        title: "Computer Science Undergraduate & Full-Stack Developer",
+        email: "kotaparthydopal@gmail.com",
+        phone: "9398484645",
+        location: "Rajahmendravaram, India",
+        bio: "Final year B.Tech student in Computer Science and Engineering at BVC College of Engineering with passion for full-stack development and continuous learning."
+      },
+      statistics: [
+        { label: "Years Learning", value: "3+" },
+        { label: "Projects", value: "5+" },
+        { label: "Certifications", value: "4" },
+        { label: "Experience", value: "1 Internship" }
+      ],
+      education: [
+        {
+          degree: "B.Tech in Computer Science and Engineering",
+          institution: "BVC College of Engineering (BVCR)",
+          location: "Rajahmendravaram",
+          year: "2022 - 2026 (Expected)",
+          description: "Currently pursuing undergraduate degree in Computer Science and Engineering"
+        },
+        {
+          degree: "Intermediate - MPC",
+          institution: "Sree Vijaya Durga Junior College",
+          location: "Rajahmendravaram",
+          year: "2020 - 2022",
+          description: ""
+        },
+        {
+          degree: "SSC",
+          institution: "MPL Corporation High School",
+          location: "Gandhipuram, Rajahmendravaram",
+          year: "2019 - 2020",
+          description: ""
+        }
+      ],
+      experience: [
+        {
+          position: "Java Intern",
+          company: "HQL EduTech",
+          location: "Rajahmendravaram, India",
+          period: "June 2024 - July 2024",
+          description: "Completed online internship course and learned full-stack Java development, including Servlets, JSP, JDBC, and MySQL"
+        }
+      ],
+      projects: [
+        {
+          id: 1,
+          name: "TextWord Counter",
+          date: "April 2025",
+          category: "Frontend",
+          description: "Dynamic web application that counts characters and words in given input. Built using HTML, CSS, and JavaScript with real-time input handling and UI updates.",
+          technologies: ["HTML", "CSS", "JavaScript"],
+          image: "📊"
+        },
+        {
+          id: 2,
+          name: "MEAN Stack Portfolio",
+          date: "October 2025",
+          category: "Full-Stack",
+          description: "Complete full-stack portfolio application showcasing expertise in MongoDB, Express.js, Angular, and Node.js with REST APIs and responsive design.",
+          technologies: ["MongoDB", "Express.js", "Angular", "Node.js"],
+          image: "🚀"
+        }
+      ],
+      skills: [
+        {
+          category: "Languages",
+          proficiency: "Intermediate",
+          items: ["Python", "Java", "SQL", "HTML", "CSS"]
+        },
+        {
+          category: "Tools & Platforms",
+          proficiency: "Intermediate",
+          items: ["Git", "VS Code", "GitHub", "Flipkart"]
+        },
+        {
+          category: "MEAN Stack",
+          proficiency: "Beginner-Intermediate",
+          items: ["MongoDB", "Express.js", "Angular", "Node.js"]
+        },
+        {
+          category: "Soft Skills",
+          proficiency: "Advanced",
+          items: ["Problem-solving", "Team Work", "Collaboration", "Communication"]
+        }
+      ],
+      certifications: [
+        {
+          title: "ServiceNow Micro-Certification",
+          issuer: "ServiceNow & HQL EduTech",
+          year: "2024",
+          category: "Platform"
+        },
+        {
+          title: "Core Java",
+          issuer: "DijikQ-Labs",
+          year: "2024",
+          category: "Programming"
+        },
+        {
+          title: "Advance Java",
+          issuer: "DijikQ-Labs",
+          year: "2024",
+          category: "Programming"
+        },
+        {
+          title: "Database Management System",
+          issuer: "NPTEL",
+          year: "2024",
+          category: "Database"
+        },
+        {
+          title: "Master of Digital Influencer",
+          issuer: "Reliance Digital",
+          year: "2024",
+          category: "Professional"
+        }
+      ],
+      achievements: [
+        {
+          title: "Smart India Hackathon 2024",
+          description: "Secured 2nd place (Silver Medal) in internal selection round. Team was nominated to submit the idea to SIH 2024",
+          icon: "🥈",
+          year: "2024"
+        },
+        {
+          title: "Master of Digital Influencer Certificate",
+          description: "Received from Reliance Digital for exceptional digital presence and influence",
+          icon: "🏆",
+          year: "2024"
+        }
+      ]
+    };
+  }
+
+  // Simulates HTTP GET request (in Angular, this would use HttpClient)
+  getPersonalInfo() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.data.personalInfo), 100);
+    });
+  }
+
+  getStatistics() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.data.statistics), 100);
+    });
+  }
+
+  getEducation() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.data.education), 100);
+    });
+  }
+
+  getExperience() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.data.experience), 100);
+    });
+  }
+
+  getProjects(filter = 'all') {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        let projects = this.data.projects;
+        if (filter !== 'all') {
+          projects = projects.filter(p => p.category.toLowerCase() === filter.toLowerCase());
+        }
+        resolve(projects);
+      }, 100);
+    });
+  }
+
+  getSkills() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.data.skills), 100);
+    });
+  }
+
+  getCertifications() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.data.certifications), 100);
+    });
+  }
+
+  getAchievements() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.data.achievements), 100);
+    });
+  }
+
+  // Simulates HTTP POST request for contact form
+  submitContactForm(formData) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // Simulate validation
+        if (!formData.name || !formData.email || !formData.message) {
+          reject({ error: 'All fields are required' });
+          return;
+        }
+        
+        // Simulate successful submission
+        resolve({ success: true, message: 'Message sent successfully!' });
+      }, 500);
+    });
+  }
+}
+
+// Router Service - Manages navigation (simulates Angular Router)
+class RouterService {
+  constructor() {
+    this.currentRoute = 'home';
+    this.routes = {
+      home: 'HomeComponent',
+      about: 'AboutComponent',
+      projects: 'ProjectsComponent',
+      skills: 'SkillsComponent',
+      certifications: 'CertificationsComponent',
+      contact: 'ContactComponent'
+    };
+    this.listeners = [];
+  }
+
+  // Navigate to a route
+  navigate(route) {
+    if (this.routes[route]) {
+      this.currentRoute = route;
+      this.notifyListeners();
+      
+      // Update URL hash without page reload
+      window.location.hash = route;
+      
+      // Scroll to top on route change
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      return true;
+    }
+    return false;
+  }
+
+  // Subscribe to route changes (simulates Angular Router events)
+  onRouteChange(callback) {
+    this.listeners.push(callback);
+  }
+
+  notifyListeners() {
+    this.listeners.forEach(callback => callback(this.currentRoute));
+  }
+
+  getCurrentRoute() {
+    return this.currentRoute;
+  }
+}
+
+// Toast Service - Manages notifications (simulates Angular Material Snackbar)
+class ToastService {
+  constructor() {
+    this.container = document.getElementById('toast-container');
+  }
+
+  show(message, type = 'success', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    
+    this.container.appendChild(toast);
+    
+    // Auto remove after duration
+    setTimeout(() => {
+      toast.style.animation = 'fadeOut 0.3s ease-out';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  success(message) {
+    this.show(message, 'success');
+  }
+
+  error(message) {
+    this.show(message, 'error');
+  }
+}
+
+// Export services (in Angular, these would be provided via dependency injection)
+const portfolioService = new PortfolioService();
+const routerService = new RouterService();
+const toastService = new ToastService();
